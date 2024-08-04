@@ -9,10 +9,22 @@ def get_weather(city):
     return response.json()
 
 
+def display_weather(data):
+    temp = data["current"]["temp_c"]
+    humidity = data["current"]["humidity"]
+    wind_speed = data["current"]["wind_kph"]
+    print(f"Temperature: {temp}°C")
+    print(f"Humidity: {humidity}%")
+    print(f"Wind Speed: {wind_speed} kph")
+
+
 def main():
-    city = input("Enter city name: ")
-    weather_data = get_weather(city)
-    print(weather_data)
+    cities = input("Enter city names separated by commas: ").split(",")
+    for city in cities:
+        weather_data = get_weather(city.strip())
+        print(f"Weather in {city.strip()}:")
+        display_weather(weather_data)
+        print()
 
 
 if __name__ == "__main__":
