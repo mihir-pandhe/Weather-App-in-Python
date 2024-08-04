@@ -9,17 +9,25 @@ def get_weather(city):
     api_key = "f47667a6aac6467596b214543240907"
     base_url = "http://api.weatherapi.com/v1/current.json"
     complete_url = f"{base_url}?key={api_key}&q={city}"
-    response = requests.get(complete_url)
-    return response.json()
+    try:
+        response = requests.get(complete_url)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching weather data: {e}")
+        return None
 
 
 def display_weather(data):
-    temp = data["current"]["temp_c"]
-    humidity = data["current"]["humidity"]
-    wind_speed = data["current"]["wind_kph"]
-    print(f"Temperature: {temp}°C")
-    print(f"Humidity: {humidity}%")
-    print(f"Wind Speed: {wind_speed} kph")
+    if "current" in data:
+        temp = data["current"]["temp_c"]
+        humidity = data["current"]["humidity"]
+        wind_speed = data["current"]["wind_kph"]
+        print(f"Temperature: {temp}°C")
+        print(f"Humidity: {humidity}%")
+        print(f"Wind Speed: {wind_speed} kph")
+    else:
+        print("Error: Invalid data format received.")
 
 
 def cache_weather(city, data):
@@ -53,10 +61,12 @@ def main():
                 weather_data = get_cached_weather(city)
                 if not weather_data:
                     weather_data = get_weather(city)
-                    cache_weather(city, weather_data)
-                print(f"Weather in {city}:")
-                display_weather(weather_data)
-                print()
+                    if weather_data:
+                        cache_weather(city, weather_data)
+                if weather_data:
+                    print(f"Weather in {city}:")
+                    display_weather(weather_data)
+                    print()
         elif command == "add_favorite":
             city = input("Enter city name to add to favorites: ").strip()
             if city not in favorite_cities:
